@@ -1,5 +1,5 @@
 (function() {
-    
+
   // Initialize Firebase
   var config = {
     apiKey: "AIzaSyBpNT2BDHUnebERrbr_86rbr2zKuAwg_XE",
@@ -10,12 +10,11 @@
   };
   firebase.initializeApp(config);
 
-  firebase.auth().signOut();
-
   //Get elements
   const txtEmail = document.getElementById('txtEmail');
   const txtPassword = document.getElementById('txtPassword');
   const btnLogin = document.getElementById('btnLogin');
+  const signInSnackbar = document.getElementById('must-signin-snackbar');
 
 
   //Add login event
@@ -26,24 +25,23 @@
     const auth = firebase.auth();
     //Sign in
     const promise = auth.signInWithEmailAndPassword(email, pass);
-    
-    promise.catch(e => console.log(e.message));
+
+    promise.catch(e => {
+      signInSnackbar.MaterialSnackbar.showSnackbar({message: 'Bad username or password', timeout: 2000});
+    });
   });
-  
 
   //Add a realtime listener
   firebase.auth().onAuthStateChanged(firebaseUser => {
     if(firebaseUser){
       console.log('user info: '+firebaseUser["uid"]);
       window.location = "index.html";
-      //window.setTimeout(function(){ window.location = "index.html"; },1000);
     }
     else{
+      console.log('user info: '+firebaseUser["uid"]);
       console.log('Not logged in');
-      //window.location = "login.html";
     }
   });
-  
 
 
 }());

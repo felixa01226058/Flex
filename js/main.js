@@ -15,10 +15,17 @@
 
   //Add logout event
   btnLogout.addEventListener('click', e => {
-    console.log('LOGOUT!');
-    firebase.auth().signOut();
-    //Error al hacer signOut
-    window.location = "login.html";
+    firebase.auth().signOut();    
+  });
+
+  firebase.auth().onAuthStateChanged(firebaseUser => {
+    if(firebaseUser){
+      
+    }
+    else{
+      console.log('Not logged in');
+      window.location = "login.html";
+    }
   });
 
 
