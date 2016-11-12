@@ -38,7 +38,6 @@
       window.location = "index.html";
     }
     else{
-      console.log('user info: '+firebaseUser["uid"]);
       console.log('Not logged in');
     }
   });
