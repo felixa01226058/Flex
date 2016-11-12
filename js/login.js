@@ -10,6 +10,7 @@
   };
   firebase.initializeApp(config);
 
+
   //Get elements
   const txtEmail = document.getElementById('txtEmail');
   const txtPassword = document.getElementById('txtPassword');

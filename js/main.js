@@ -9,8 +9,10 @@
   };
   firebase.initializeApp(config);
 
+
   //Get elements
   const btnLogout = document.getElementById('btnLogout');
+  const username = document.getElementById('username');
 
 
   //Add logout event
@@ -20,6 +22,12 @@
 
   firebase.auth().onAuthStateChanged(firebaseUser => {
     if(firebaseUser){
+      console.log('Main user info: '+firebaseUser["uid"]);
+
+      var x = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
+      x.on('value', function(dataSnapshot) {
+        username.innerHTML = dataSnapshot.val();
+      });
 
     }
     else{

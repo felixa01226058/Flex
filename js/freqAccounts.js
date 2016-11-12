@@ -13,16 +13,18 @@
 
   //Get elements
   const btnLogout = document.getElementById('btnLogout');
-  var deleteOption = document.getElementById('delete');
+  const username = document.getElementById('username');
+
+  const newAccountNumber = document.getElementById('newAccountNumber');
+  const newName = document.getElementById('newName');
+  const newComment = document.getElementById('newComment');
+  const submit = document.getElementById('submit');
+
+  var freqAccount;
 
 
-  //freqAccounts.push({'name': 'Nelson Mandela', 'RecipientNumber': 87654321});     //Adds a new frequent account
-
-
-  function loadData(id){
-    var freqAccounts = firebase.database().ref().child('Users').child(id).child('FrequentAccounts');
-
-    freqAccounts.once('value', snap => {
+  function loadData(){
+    freqAccounts.on('value', snap => {
       const body = document.getElementsByTagName('tbody').item(0);
       var tr = '';
       var i = 1;
@@ -43,14 +45,11 @@
       }
 
       function deleteFreq(){
-        //console.log(this.id);
         var item = this.id;
         var k = 1;
         var flag = true;
         snap.forEach(function(subSnap) {
           if(k == item && flag){
-            //console.log(k);
-            //console.log(subSnap.key);
             freqAccounts.child(subSnap.key).remove();
             flag = false;
           }
@@ -63,6 +62,48 @@
   }
 
 
+  submit.addEventListener('click', e => {
+    const accountNumber = newAccountNumber.value;
+    if(accountNumber.length < 8){
+      alert('Account number must be 8 characters long');
+      return false;
+    }
+    const name = newName.value;
+
+    //Check if account exists in freq list
+    freqAccounts.on('value', snap => {
+      var isRepeated = false;
+      snap.forEach(function(subSnap) {
+        if(subSnap.child("RecipientNumber").val() == accountNumber){
+          alert('This account is already in your frequent accounts!');
+          isRepeated = true;
+        }
+      });
+    });
+
+    if(isRepeated){
+      return false;
+    }
+
+    //Check if account exists in db
+    /*var checkDB = firebase.database().ref().child('Users');
+
+    checkDB.on('value', snap => {
+      alert('do u even enter');
+      snap.forEach(function(subSnap) {
+        console.log(subSnap.key);
+        alert('duo');
+      });
+    });
+    return false;*/
+
+
+    //Add new frequent account
+    freqAccounts.push({'name': name, 'RecipientNumber': accountNumber});
+    window.location = "forms.html"
+  });
+
+
   //Add logout event
   btnLogout.addEventListener('click', e => {
     console.log('out!');
@@ -73,7 +114,15 @@
   firebase.auth().onAuthStateChanged(firebaseUser => {
     if(firebaseUser){
       console.log('user info: '+firebaseUser["uid"]);
-      loadData(firebaseUser["uid"]);
+
+      var x = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
+      x.on('value', function(dataSnapshot) {
+        username.innerHTML = dataSnapshot.val();
+      });
+
+
+      freqAccounts = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('FrequentAccounts');
+      loadData();
     }
     else{
       console.log('Not logged in');
