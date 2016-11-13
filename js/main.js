@@ -13,6 +13,8 @@
   //Get elements
   const btnLogout = document.getElementById('btnLogout');
   const username = document.getElementById('username');
+  const balance = document.getElementById('balance');
+  const welcome = document.getElementById('welcome');
 
 
   //Add logout event
@@ -26,8 +28,15 @@
 
       var x = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
       x.on('value', function(dataSnapshot) {
-        username.innerHTML = dataSnapshot.val();
+        username.innerHTML = ' '+dataSnapshot.val();
+        welcome.innerHTML = 'Welcome '+dataSnapshot.val().split(" ")[0];
       });
+
+      var money = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('AccountMoney');
+      money.on('value', function(dataSnapshot) {
+        balance.innerHTML = '$'+dataSnapshot.val().toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      });
+
 
     }
     else{

@@ -55,7 +55,7 @@
 
       var x = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
       x.on('value', function(dataSnapshot) {
-        username.innerHTML = dataSnapshot.val();
+        username.innerHTML = ' '+dataSnapshot.val();
       });
 
 
