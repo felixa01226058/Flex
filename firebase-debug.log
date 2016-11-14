@@ -12,3 +12,31 @@
 [info] Public Directory: ./
 [info] 
 [info] Server listening at: http://localhost:5000
+[debug] ----------------------------------------------------------------------
+[debug] Command:      C:\Program Files\nodejs\node.exe C:\Users\Asus gl552\AppData\Roaming\npm\node_modules\firebase-tools\bin\firebase serve
+[debug] CLI Version:  3.1.0
+[debug] Platform:     win32
+[debug] Node Version: v6.9.1
+[debug] Time:         Mon Nov 14 2016 13:10:11 GMT-0600 (Hora estándar central (México))
+[debug] ----------------------------------------------------------------------
+[debug] 
+[info] Starting Firebase development server...
+[info] 
+[info] Project Directory: C:\Users\Asus gl552\Desktop\proyectofinalFlex
+[info] Public Directory: ./
+[info] 
+[info] Server listening at: http://localhost:5000
+[debug] ----------------------------------------------------------------------
+[debug] Command:      C:\Program Files\nodejs\node.exe C:\Users\Asus gl552\AppData\Roaming\npm\node_modules\firebase-tools\bin\firebase serve
+[debug] CLI Version:  3.1.0
+[debug] Platform:     win32
+[debug] Node Version: v6.9.1
+[debug] Time:         Mon Nov 14 2016 13:11:33 GMT-0600 (Hora estándar central (México))
+[debug] ----------------------------------------------------------------------
+[debug] 
+[info] Starting Firebase development server...
+[info] 
+[info] Project Directory: C:\Users\Asus gl552\Desktop\proyectofinalFlex
+[info] Public Directory: ./
+[info] 
+[info] Server listening at: http://localhost:5000
