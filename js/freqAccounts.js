@@ -21,6 +21,9 @@
   const submit = document.getElementById('submit');
 
   var freqAccount;
+  var checkDB;
+  var myAccount;
+  var acc;
 
 
   function loadData(){
@@ -63,44 +66,64 @@
 
 
   submit.addEventListener('click', e => {
-    const accountNumber = newAccountNumber.value;
-    if(accountNumber.length < 8){
+    var name = newName.value;
+    var accountNumber = newAccountNumber.value;
+
+    if(accountNumber.length != 8){
       alert('Account number must be 8 characters long');
-      return false;
+      return;
     }
-    const name = newName.value;
 
     //Check if account exists in freq list
-    freqAccounts.on('value', snap => {
-      var isRepeated = false;
+    var isInFrequents = false;
+    freqAccounts.once('value', snap => {
       snap.forEach(function(subSnap) {
         if(subSnap.child("RecipientNumber").val() == accountNumber){
-          alert('This account is already in your frequent accounts!');
-          isRepeated = true;
+          isInFrequents = true;
         }
       });
     });
-
-    if(isRepeated){
-      return false;
+    if(isInFrequents){
+      alert('Its already in frequents');
+      return;
     }
 
-    //Check if account exists in db
-    /*var checkDB = firebase.database().ref().child('Users');
 
-    checkDB.on('value', snap => {
-      alert('do u even enter');
-      snap.forEach(function(subSnap) {
-        console.log(subSnap.key);
-        alert('duo');
-      });
+    //Check if account is not myself
+    var itsMine = false;
+    myAccount.once('value', snap => {
+      if(snap.val() == accountNumber){
+        event.stopImmediatePropagation();
+        itsMine = true;
+        return;
+      }
     });
-    return false;*/
+
+    //Check if account exists in db
+    var accountInDB = false;
+    checkDB.once('value', snap => {
+      snap.forEach(function(subSnap) {
+        if(subSnap.child('AccountNumber').val() == accountNumber){
+          accountInDB = true;
+        }
+      });
+
+      if(accountInDB && itsMine){
+        alert('its your account!!');
+      }
+      else if(accountInDB){
+        freqAccounts.push({'name': name, 'RecipientNumber': accountNumber});
+
+        alert('Added');
+        window.location = "forms.html";
+      }
+      else if(!accountInDB){
+        alert('This account is not register in Flex Corp!');
+      }
+
+    });
 
 
-    //Add new frequent account
-    freqAccounts.push({'name': name, 'RecipientNumber': accountNumber});
-    window.location = "forms.html"
   });
 
 
@@ -113,15 +136,17 @@
   //Add a realtime listener
   firebase.auth().onAuthStateChanged(firebaseUser => {
     if(firebaseUser){
-      console.log('user info: '+firebaseUser["uid"]);
+      console.log('freqAccounts info: '+firebaseUser["uid"]);
 
       var x = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
       x.on('value', function(dataSnapshot) {
         username.innerHTML = ' '+dataSnapshot.val();
       });
 
-
+      checkDB = firebase.database().ref('Users');
+      myAccount = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('AccountNumber');
       freqAccounts = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('FrequentAccounts');
+
       loadData();
     }
     else{

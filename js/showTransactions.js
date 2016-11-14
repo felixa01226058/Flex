@@ -23,13 +23,10 @@
     transactions.once('value', snap => {
       const body = document.getElementsByTagName('tbody').item(0);
       var tr = '';
-      var i = 0;
       snap.forEach(function(subSnap) {
-        i++;
-
         tr += '<tr>';
-        tr += "<td>"+(i)+"</td>";
-        tr += "<td>"+"TODO: Put date in json; recieved and made transactions; id transaction"+"</td>";
+        tr += "<td>"+subSnap.key+"</td>";
+        tr += "<td>"+"TODO: Put date in json; recieved and made transactions"+"</td>";
         tr += "<td>"+"Deposit"+"</td>";
         tr += "<td>"+subSnap.child("RecipientNumber").val()+"</td>";
         tr += "<td>"+subSnap.child("Recipient").val()+"</td>";
