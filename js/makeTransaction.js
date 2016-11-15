@@ -117,8 +117,6 @@
             }
           });
 
-          //Validar monto maximo por dia
-
 
           if(!insufficient){
             //Guardar en sus transacciones
