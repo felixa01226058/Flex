@@ -24,6 +24,8 @@
   const submit = document.getElementById('submit');
 
   var destinationID;
+  var user;
+  var userNumber;
 
   var myFavorites;
   var myAccount;
@@ -82,7 +84,7 @@
     var myNewBalance;
 
     //Validar input
-    if(recipientNumber.value.length != 8 || recipientName.value.length == 0 || amount.value.length == 0){
+    if(recipientNumber.value.length != 10 || recipientName.value.length == 0 || amount.value.length == 0){
       alert('Incomplete or incorrect fields');
       return;
     }
@@ -119,19 +121,19 @@
 
       if(!insufficient){
         //Guardar en sus transacciones
-        //Modify recipient and recipient number
         hisAccount.child(destinationID).child('Transactions').push({
           "Amount": amount.value,
           "Comment": comment.value,
           "Date": new Date().toUTCString(),
           "DateInSeconds": Math.round(new Date().getTime()/1000),
-          //"Recipient": recipientName,
-          //"RecipientNumber": recipientNumber,
+          "Recipient": user,
+          "RecipientNumber": userNumber,
           "Type": "Entry"
         });
         //Modificar su balance
         hisAccount.child(destinationID).child('AccountMoney').once('value', function(dataSnapshot) {
-          var result = dataSnapshot.val() + amount.value;
+          var result = +dataSnapshot.val() + +amount.value;
+          console.log(result);
           hisAccount.child(destinationID).child('AccountMoney').set( result );
         });
 
@@ -141,8 +143,8 @@
           "Comment": comment.value,
           "Date": new Date().toUTCString(),
           "DateInSeconds": Math.round(new Date().getTime()/1000),
-          "Recipient": recipientName,
-          "RecipientNumber": recipientNumber,
+          "Recipient": recipientName.value,
+          "RecipientNumber": recipientNumber.value,
           "Type": "Deposit"
         });
 
@@ -156,7 +158,7 @@
 
 
   saveFavorite.addEventListener('click', e => {
-    if(recipientNumber.value.length != 8){
+    if(recipientNumber.value.length != 10){
       alert('Account number must be 8 characters long');
       return;
     }
@@ -230,16 +232,20 @@
         balance.innerHTML = '$'+dataSnapshot.val().toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
       });
 
-      myFavorites = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('FrequentAccounts');
-
-
       myAccount = firebase.database().ref().child('Users').child(firebaseUser["uid"]);
 
+
+      myNumber = firebase.database().ref().child('Users').child(firebaseUser["uid"]);
+      myNumber.on('value', function(dataSnapshot) {
+        user = dataSnapshot.child('Name').val();
+      });
+      myNumber.on('value', function(dataSnapshot) {
+        userNumber = dataSnapshot.child('AccountNumber').val();
+      });
+
+      myFavorites = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('FrequentAccounts');
       hisAccount = firebase.database().ref().child('Users');
-
       checkDB = firebase.database().ref('Users');
-
-
       freqAccounts = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('FrequentAccounts');
 
       loadFavorites();

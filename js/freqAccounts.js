@@ -69,7 +69,7 @@
     var name = newName.value;
     var accountNumber = newAccountNumber.value;
 
-    if(accountNumber.length != 8){
+    if(accountNumber.length != 10){
       alert('Account number must be 8 characters long');
       return;
     }
