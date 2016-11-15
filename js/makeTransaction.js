@@ -16,9 +16,16 @@
   const username = document.getElementById('username');
   const balance = document.getElementById('balance');
   const dropdown = document.getElementById('dropdown');
-  const RecipientNumber = document.getElementById('recipientNumber');
+  const recipientNumber = document.getElementById('recipientNumber');
+  const recipientName = document.getElementById('recipientName');
+  const amount = document.getElementById('amount');
+  const comment = document.getElementById('comment');
+  const saveFavorite = document.getElementById('saveFavorite');
+  const submit = document.getElementById('submit');
 
   var myFavorites;
+  var myAccount;
+
 
   //Add logout event
   btnLogout.addEventListener('click', e => {
@@ -27,7 +34,6 @@
 
 
   function loadFavorites(){
-
     myFavorites.on('value', snap => {
       const body = document.getElementsByTagName('select').item(0);
       var option = "<option></option>";
@@ -38,20 +44,28 @@
       });
       body.innerHTML = option;
     });
-
   }
+
 
   dropdown.addEventListener('change', e => {
     var strUser = dropdown.value;
 
     if(strUser.length == 0){
       recipientNumber.value = "";
+      recipientNumber.readOnly = false;
+
+      recipientName.value = "";
+      recipientName.readOnly = false;
     }
     else{
+      recipientNumber.readOnly  = true;
+      recipientName.readOnly = true;
+
       myFavorites.on('value', snap => {
         snap.forEach(function(subSnap) {
           if(subSnap.child('Name').val() == strUser){
             recipientNumber.value = subSnap.child('RecipientNumber').val();
+            recipientName.value = subSnap.child('Name').val();
           }
         });
       });
@@ -59,8 +73,59 @@
 
   });
 
-  
 
+  //Date: new Date().toUTCString()
+  //DateInSeconds: Math.round(new Date().getTime()/1000)
+  submit.addEventListener('click', e => {
+    //Validar input
+    if(recipientNumber.value.length == 0 || recipientName.value.length == 0 || amount.value.length == 0){
+      alert('Incomplete fields');
+      return;
+    }
+
+    //Limite minimo de transaccion
+    if(amount.value < 10){
+      alert('Low amount');
+      return;
+    }
+
+    //Validar que es menor que mi saldo actual
+    myAccount.child('AccountMoney').once('value', function(dataSnapshot) {
+      if(dataSnapshot.val() < amount.value){
+        alert('Insufficient balance');
+      }
+    });
+
+
+    //Validar monto maximo por dia
+
+
+
+    //Guardar en mis transacciones
+    myAccount.child('Transactions').push({
+      "Amount": -amount.value,
+      "Comment": comment.value,
+      "Date": new Date().toUTCString(),
+      "DateInSeconds": Math.round(new Date().getTime()/1000),
+      "Recipient": recipientName,
+      "RecipientNumber": recipientNumber,
+      "Type": "Deposit"
+    });
+
+
+    //Guardar en sus transacciones
+
+
+
+    console.log('FIN');
+  });
+
+
+  saveFavorite.addEventListener('click', e => {
+    //Validar input
+    //Validar que no este ya en favoritos
+
+  });
 
 
   //Add a realtime listener
@@ -79,6 +144,9 @@
       });
 
       myFavorites = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('FrequentAccounts');
+
+
+      myAccount = firebase.database().ref().child('Users').child(firebaseUser["uid"]);
 
 
       loadFavorites();

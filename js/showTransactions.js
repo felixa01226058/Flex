@@ -26,12 +26,12 @@
       snap.forEach(function(subSnap) {
         tr += '<tr>';
         tr += "<td>"+subSnap.key+"</td>";
-        tr += "<td>"+"TODO: Put date in json; recieved and made transactions"+"</td>";
-        tr += "<td>"+"Deposit"+"</td>";
+        tr += "<td>"+subSnap.child("Date").val()+"</td>";
+        tr += "<td>"+subSnap.child("Type").val()+"</td>";
         tr += "<td>"+subSnap.child("RecipientNumber").val()+"</td>";
         tr += "<td>"+subSnap.child("Recipient").val()+"</td>";
         tr += "<td>"+subSnap.child("Comment").val()+"</td>";
-        tr += "<td>-$"+subSnap.child("Amount").val()+"</td>";
+        tr += "<td>$  "+subSnap.child("Amount").val()+"</td>";
         tr += "</tr>";
       });
       body.innerHTML = tr;

@@ -112,7 +112,7 @@
         alert('its your account!!');
       }
       else if(accountInDB){
-        freqAccounts.push({'name': name, 'RecipientNumber': accountNumber});
+        freqAccounts.push({'Name': name, 'RecipientNumber': accountNumber});
 
         alert('Added');
         window.location = "forms.html";
