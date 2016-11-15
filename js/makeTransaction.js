@@ -23,6 +23,8 @@
   const saveFavorite = document.getElementById('saveFavorite');
   const submit = document.getElementById('submit');
 
+  var destinationID;
+
   var myFavorites;
   var myAccount;
   var hisAccount;
@@ -70,14 +72,15 @@
           }
         });
       });
+
     }
 
   });
 
 
-  //Date: new Date().toUTCString()
-  //DateInSeconds: Math.round(new Date().getTime()/1000)
   submit.addEventListener('click', e => {
+    var myNewBalance;
+
     //Validar input
     if(recipientNumber.value.length != 8 || recipientName.value.length == 0 || amount.value.length == 0){
       alert('Incomplete or incorrect fields');
@@ -90,60 +93,123 @@
       return;
     }
 
-    //Validar que es menor que mi saldo actual
-    myAccount.child('AccountMoney').once('value', function(dataSnapshot) {
-      if(dataSnapshot.val() < amount.value){
-        alert('Insufficient balance');
+    //Get destinationID
+    hisAccount.once('value', snap => {
+      snap.forEach(function(subSnap) {
+        if(subSnap.child('AccountNumber').val() == recipientNumber.value){
+          destinationID = subSnap.key;
+        }
+      });
+
+      var insufficient = false;
+      //Validar que es menor que mi saldo actual
+      myAccount.child('AccountMoney').once('value', function(dataSnapshot) {
+        if(dataSnapshot.val() < amount.value){
+          alert('Insufficient balance');
+          insufficient = true;
+        }
+        else{
+          //Modificar mi balance
+          myAccount.child('AccountMoney').set( dataSnapshot.val() - amount.value );
+        }
+      });
+
+      //Validar monto maximo por dia
+
+
+      if(!insufficient){
+        //Guardar en sus transacciones
+        //Modify recipient and recipient number
+        hisAccount.child(destinationID).child('Transactions').push({
+          "Amount": amount.value,
+          "Comment": comment.value,
+          "Date": new Date().toUTCString(),
+          "DateInSeconds": Math.round(new Date().getTime()/1000),
+          //"Recipient": recipientName,
+          //"RecipientNumber": recipientNumber,
+          "Type": "Entry"
+        });
+        //Modificar su balance
+        hisAccount.child(destinationID).child('AccountMoney').once('value', function(dataSnapshot) {
+          var result = dataSnapshot.val() + amount.value;
+          hisAccount.child(destinationID).child('AccountMoney').set( result );
+        });
+
+        //Guardar en mis transacciones
+        myAccount.child('Transactions').push({
+          "Amount": -amount.value,
+          "Comment": comment.value,
+          "Date": new Date().toUTCString(),
+          "DateInSeconds": Math.round(new Date().getTime()/1000),
+          "Recipient": recipientName,
+          "RecipientNumber": recipientNumber,
+          "Type": "Deposit"
+        });
+
       }
-    });
 
-    var myNewBalance = dataSnapshot.val() - amount.value;
-
-
-    //Validar monto maximo por dia
-    
-
-
-
-    //Guardar en mis transacciones
-    myAccount.child('Transactions').push({
-      "Amount": -amount.value,
-      "Comment": comment.value,
-      "Date": new Date().toUTCString(),
-      "DateInSeconds": Math.round(new Date().getTime()/1000),
-      "Recipient": recipientName,
-      "RecipientNumber": recipientNumber,
-      "Type": "Deposit"
-    });
-    //Modificar mi balance
-    myAccount.child('AccountMoney').set( myNewBalance );
-
-
-    //Guardar en sus transacciones
-    //Modify recipient and recipient number
-    hisAccount.child(recipientNumber.value).child('Transactions').push({
-      "Amount": amount.value,
-      "Comment": comment.value,
-      "Date": new Date().toUTCString(),
-      "DateInSeconds": Math.round(new Date().getTime()/1000),
-      //"Recipient": recipientName,
-      //"RecipientNumber": recipientNumber,
-      "Type": "Entry"
-    });
-    //Modificar su balance
-    hisAccount.child(recipientNumber.value).child('AccountMoney').once('value', function(dataSnapshot) {
-      hisAccount.child(recipientNumber.value).child('AccountMoney').set( dataSnapshot.val() + amount.value );
     });
 
 
-    console.log('END');
   });
 
 
 
   saveFavorite.addEventListener('click', e => {
-    //Validar input
-    //Validar que no este ya en favoritos
+    if(recipientNumber.value.length != 8){
+      alert('Account number must be 8 characters long');
+      return;
+    }
+
+    //Check if account exists in freq list
+    var isInFrequents = false;
+    freqAccounts.once('value', snap => {
+      snap.forEach(function(subSnap) {
+        if(subSnap.child("RecipientNumber").val() == recipientNumber.value){
+          isInFrequents = true;
+        }
+      });
+    });
+    if(isInFrequents){
+      alert('Its already in frequents');
+      return;
+    }
+
+
+    //Check if account is not myself
+    var itsMine = false;
+    myAccount.once('value', snap => {
+      if(snap.val() == recipientNumber.value){
+        event.stopImmediatePropagation();
+        itsMine = true;
+        return;
+      }
+    });
+
+    //Check if account exists in db
+    var accountInDB = false;
+    checkDB.once('value', snap => {
+      snap.forEach(function(subSnap) {
+        if(subSnap.child('AccountNumber').val() == recipientNumber.value){
+          accountInDB = true;
+        }
+      });
+
+      if(accountInDB && itsMine){
+        alert('its your account!!');
+      }
+      else if(accountInDB){
+        freqAccounts.push({'Name': recipientName.value, 'RecipientNumber': recipientNumber.value});
+
+        alert('Added');
+        window.location = "forms.html";
+      }
+      else if(!accountInDB){
+        alert('This account is not register in Flex Corp!');
+      }
+
+    });
+
 
   });
 
@@ -170,6 +236,11 @@
       myAccount = firebase.database().ref().child('Users').child(firebaseUser["uid"]);
 
       hisAccount = firebase.database().ref().child('Users');
+
+      checkDB = firebase.database().ref('Users');
+
+
+      freqAccounts = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('FrequentAccounts');
 
       loadFavorites();
     }
