@@ -25,6 +25,7 @@
 
   var myFavorites;
   var myAccount;
+  var hisAccount;
 
 
   //Add logout event
@@ -78,8 +79,8 @@
   //DateInSeconds: Math.round(new Date().getTime()/1000)
   submit.addEventListener('click', e => {
     //Validar input
-    if(recipientNumber.value.length == 0 || recipientName.value.length == 0 || amount.value.length == 0){
-      alert('Incomplete fields');
+    if(recipientNumber.value.length != 8 || recipientName.value.length == 0 || amount.value.length == 0){
+      alert('Incomplete or incorrect fields');
       return;
     }
 
@@ -96,8 +97,11 @@
       }
     });
 
+    var myNewBalance = dataSnapshot.val() - amount.value;
+
 
     //Validar monto maximo por dia
+    
 
 
 
@@ -111,14 +115,30 @@
       "RecipientNumber": recipientNumber,
       "Type": "Deposit"
     });
+    //Modificar mi balance
+    myAccount.child('AccountMoney').set( myNewBalance );
 
 
     //Guardar en sus transacciones
+    //Modify recipient and recipient number
+    hisAccount.child(recipientNumber.value).child('Transactions').push({
+      "Amount": amount.value,
+      "Comment": comment.value,
+      "Date": new Date().toUTCString(),
+      "DateInSeconds": Math.round(new Date().getTime()/1000),
+      //"Recipient": recipientName,
+      //"RecipientNumber": recipientNumber,
+      "Type": "Entry"
+    });
+    //Modificar su balance
+    hisAccount.child(recipientNumber.value).child('AccountMoney').once('value', function(dataSnapshot) {
+      hisAccount.child(recipientNumber.value).child('AccountMoney').set( dataSnapshot.val() + amount.value );
+    });
 
 
-
-    console.log('FIN');
+    console.log('END');
   });
+
 
 
   saveFavorite.addEventListener('click', e => {
@@ -126,6 +146,7 @@
     //Validar que no este ya en favoritos
 
   });
+
 
 
   //Add a realtime listener
@@ -148,6 +169,7 @@
 
       myAccount = firebase.database().ref().child('Users').child(firebaseUser["uid"]);
 
+      hisAccount = firebase.database().ref().child('Users');
 
       loadFavorites();
     }
