@@ -70,7 +70,7 @@
     var accountNumber = newAccountNumber.value;
 
     if(accountNumber.length != 10){
-      alert('Account number must be 8 characters long');
+      alert('Account number must be 10 characters long');
       return;
     }
 

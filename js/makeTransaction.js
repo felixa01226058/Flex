@@ -103,52 +103,58 @@
         }
       });
 
-      var insufficient = false;
-      //Validar que es menor que mi saldo actual
-      myAccount.child('AccountMoney').once('value', function(dataSnapshot) {
-        if(dataSnapshot.val() < amount.value){
-          alert('Insufficient balance');
-          insufficient = true;
+      if(destinationID != null){
+          var insufficient = false;
+          //Validar que es menor que mi saldo actual
+          myAccount.child('AccountMoney').once('value', function(dataSnapshot) {
+            if(dataSnapshot.val() < amount.value){
+              alert('Insufficient balance');
+              insufficient = true;
+            }
+            else{
+              //Modificar mi balance
+              myAccount.child('AccountMoney').set( dataSnapshot.val() - amount.value );
+            }
+          });
+
+          //Validar monto maximo por dia
+
+
+          if(!insufficient){
+            //Guardar en sus transacciones
+            hisAccount.child(destinationID).child('Transactions').push({
+              "Amount": amount.value,
+              "Comment": comment.value,
+              "Date": new Date().toUTCString(),
+              "DateInSeconds": Math.round(new Date().getTime()/1000),
+              "Recipient": user,
+              "RecipientNumber": userNumber,
+              "Type": "Entry"
+            });
+            //Modificar su balance
+            hisAccount.child(destinationID).child('AccountMoney').once('value', function(dataSnapshot) {
+              var result = +dataSnapshot.val() + +amount.value;
+              console.log(result);
+              hisAccount.child(destinationID).child('AccountMoney').set( result );
+            });
+
+            //Guardar en mis transacciones
+            myAccount.child('Transactions').push({
+              "Amount": -amount.value,
+              "Comment": comment.value,
+              "Date": new Date().toUTCString(),
+              "DateInSeconds": Math.round(new Date().getTime()/1000),
+              "Recipient": recipientName.value,
+              "RecipientNumber": recipientNumber.value,
+              "Type": "Deposit"
+            });
+
+          }
         }
         else{
-          //Modificar mi balance
-          myAccount.child('AccountMoney').set( dataSnapshot.val() - amount.value );
+          alert('Inexistent account');
+          return;
         }
-      });
-
-      //Validar monto maximo por dia
-
-
-      if(!insufficient){
-        //Guardar en sus transacciones
-        hisAccount.child(destinationID).child('Transactions').push({
-          "Amount": amount.value,
-          "Comment": comment.value,
-          "Date": new Date().toUTCString(),
-          "DateInSeconds": Math.round(new Date().getTime()/1000),
-          "Recipient": user,
-          "RecipientNumber": userNumber,
-          "Type": "Entry"
-        });
-        //Modificar su balance
-        hisAccount.child(destinationID).child('AccountMoney').once('value', function(dataSnapshot) {
-          var result = +dataSnapshot.val() + +amount.value;
-          console.log(result);
-          hisAccount.child(destinationID).child('AccountMoney').set( result );
-        });
-
-        //Guardar en mis transacciones
-        myAccount.child('Transactions').push({
-          "Amount": -amount.value,
-          "Comment": comment.value,
-          "Date": new Date().toUTCString(),
-          "DateInSeconds": Math.round(new Date().getTime()/1000),
-          "Recipient": recipientName.value,
-          "RecipientNumber": recipientNumber.value,
-          "Type": "Deposit"
-        });
-
-      }
 
     });
 
@@ -159,7 +165,7 @@
 
   saveFavorite.addEventListener('click', e => {
     if(recipientNumber.value.length != 10){
-      alert('Account number must be 8 characters long');
+      alert('Account number must be 10 characters long');
       return;
     }
 
