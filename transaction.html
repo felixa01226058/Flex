@@ -30,6 +30,11 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+        <!-- Morris Charts JavaScript -->
+    <script src="js/plugins/morris/raphael.min.js"></script>
+    <script src="js/plugins/morris/morris.min.js"></script>
+    <script src="js/plugins/morris/morris-data.js"></script>
+
     <script src="https://www.gstatic.com/firebasejs/3.6.0/firebase.js"></script>
 
 </head>
@@ -160,7 +165,7 @@
 
                                     <div class="form-group input-group">
                                         <span class="input-group-addon">$</span>
-                                            <input id="amount" type="text" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+                                            <input id="amount" type="text" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46">
                                     </div>
 
                                     <div class="form-group">
@@ -171,7 +176,7 @@
 
                                     <button id="saveFavorite" type="button" class="btn btn-default"><i class="fa fa-fw fa-star"></i> Save on favorites</button>
                                     <div class="text-right">
-                                        <button type="reset" class="btn btn-default">Clear fields</button>
+                                        <button id="reset" type="button" class="btn btn-default">Clear fields</button>
                                         <button id="submit" type="button" class="btn btn-primary">Make transaction</button>
                                     </div>
 
@@ -206,6 +211,11 @@
 
     <!-- Bootstrap Core JavaScript -->
     <script src="js/bootstrap.min.js"></script>
+
+    <!-- Morris Charts JavaScript -->
+    <script src="js/plugins/morris/raphael.min.js"></script>
+    <script src="js/plugins/morris/morris.min.js"></script>
+    <script src="js/plugins/morris/morris-data.js"></script>
 
     <script src="js/makeTransaction.js"></script>
 

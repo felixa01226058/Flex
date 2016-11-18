@@ -21,6 +21,7 @@
   const amount = document.getElementById('amount');
   const comment = document.getElementById('comment');
   const saveFavorite = document.getElementById('saveFavorite');
+  const reset = document.getElementById('reset');
   const submit = document.getElementById('submit');
 
   var destinationID;
@@ -31,6 +32,7 @@
   var myAccount;
   var hisAccount;
 
+  var reg = /^\d+(\.\d{1,2})?$/i;
 
   //Add logout event
   btnLogout.addEventListener('click', e => {
@@ -80,11 +82,26 @@
   });
 
 
+  reset.addEventListener('click', e => {
+    if(dropdown.value.length == 0){
+      recipientNumber.value = null;
+      recipientName.value = null;
+    }
+    amount.value = null;
+    comment.value = null;
+  });
+
+
   submit.addEventListener('click', e => {
     var myNewBalance;
 
+    if(!reg.test(amount.value)){
+      alert('Incorrect amount');
+      return;
+    }
+
     //Validar input
-    if(recipientNumber.value.length != 10 || recipientName.value.length == 0 || amount.value.length == 0){
+    if(recipientNumber.value.length != 10 || recipientName.value.length == 0){
       alert('Incomplete or incorrect fields');
       return;
     }
@@ -104,6 +121,11 @@
       });
 
       if(destinationID != null){
+          //Verificar que no es mi cuenta
+          if(destinationID == firebase.auth()["currentUser"]["uid"]){
+            alert('It is your account');
+            return;
+          }
           var insufficient = false;
           //Validar que es menor que mi saldo actual
           myAccount.child('AccountMoney').once('value', function(dataSnapshot) {
@@ -132,7 +154,7 @@
             //Modificar su balance
             hisAccount.child(destinationID).child('AccountMoney').once('value', function(dataSnapshot) {
               var result = +dataSnapshot.val() + +amount.value;
-              console.log(result);
+              //console.log(result);
               hisAccount.child(destinationID).child('AccountMoney').set( result );
             });
 
@@ -146,11 +168,11 @@
               "RecipientNumber": recipientNumber.value,
               "Type": "Deposit"
             });
-
+            alert('Transaction completed!');
           }
         }
         else{
-          alert('Inexistent account');
+          alert('This account is not register in Flex Corp!');
           return;
         }
 
@@ -162,6 +184,7 @@
 
 
   saveFavorite.addEventListener('click', e => {
+
     if(recipientNumber.value.length != 10){
       alert('Account number must be 10 characters long');
       return;
@@ -177,14 +200,14 @@
       });
     });
     if(isInFrequents){
-      alert('Its already in frequents');
+      alert('It is already in your frequents');
       return;
     }
 
 
     //Check if account is not myself
     var itsMine = false;
-    myAccount.once('value', snap => {
+    myAccount.child('AccountNumber').once('value', snap => {
       if(snap.val() == recipientNumber.value){
         event.stopImmediatePropagation();
         itsMine = true;
@@ -202,13 +225,12 @@
       });
 
       if(accountInDB && itsMine){
-        alert('its your account!!');
+        alert('it is your account!!');
       }
       else if(accountInDB){
         freqAccounts.push({'Name': recipientName.value, 'RecipientNumber': recipientNumber.value});
-
-        alert('Added');
-        window.location = "forms.html";
+        
+        alert('Added to frequents');
       }
       else if(!accountInDB){
         alert('This account is not register in Flex Corp!');

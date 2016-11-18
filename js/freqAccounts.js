@@ -84,7 +84,7 @@
       });
     });
     if(isInFrequents){
-      alert('Its already in frequents');
+      alert('It is already in frequents');
       return;
     }
 
@@ -109,12 +109,12 @@
       });
 
       if(accountInDB && itsMine){
-        alert('its your account!!');
+        alert('it is your account');
       }
       else if(accountInDB){
         freqAccounts.push({'Name': name, 'RecipientNumber': accountNumber});
-
-        alert('Added');
+        
+        alert('Added to frequents');
         window.location = "forms.html";
       }
       else if(!accountInDB){

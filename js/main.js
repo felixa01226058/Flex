@@ -26,6 +26,8 @@
     if(firebaseUser){
       console.log('Main user info: '+firebaseUser["uid"]);
 
+      console.log(firebase.auth()["currentUser"]["uid"]);
+
       var x = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
       x.on('value', function(dataSnapshot) {
         username.innerHTML = ' '+dataSnapshot.val();
@@ -36,7 +38,6 @@
       money.on('value', function(dataSnapshot) {
         balance.innerHTML = '$'+dataSnapshot.val().toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
       });
-
 
     }
     else{
