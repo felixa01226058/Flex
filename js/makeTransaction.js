@@ -30,14 +30,9 @@
 
   var myFavorites;
   var myAccount;
-  var hisAccount;
+  var checkDB;
 
   var reg = /^\d+(\.\d{1,2})?$/i;
-
-  //Add logout event
-  btnLogout.addEventListener('click', e => {
-    firebase.auth().signOut();
-  });
 
 
   function loadFavorites(){
@@ -113,7 +108,7 @@
     }
 
     //Get destinationID
-    hisAccount.once('value', snap => {
+    checkDB.once('value', snap => {
       snap.forEach(function(subSnap) {
         if(subSnap.child('AccountNumber').val() == recipientNumber.value){
           destinationID = subSnap.key;
@@ -139,10 +134,9 @@
             }
           });
 
-
           if(!insufficient){
             //Guardar en sus transacciones
-            hisAccount.child(destinationID).child('Transactions').push({
+            checkDB.child(destinationID).child('Transactions').push({
               "Amount": amount.value,
               "Comment": comment.value,
               "Date": new Date().toUTCString(),
@@ -152,10 +146,9 @@
               "Type": "Entry"
             });
             //Modificar su balance
-            hisAccount.child(destinationID).child('AccountMoney').once('value', function(dataSnapshot) {
+            checkDB.child(destinationID).child('AccountMoney').once('value', function(dataSnapshot) {
               var result = +dataSnapshot.val() + +amount.value;
-              //console.log(result);
-              hisAccount.child(destinationID).child('AccountMoney').set( result );
+              checkDB.child(destinationID).child('AccountMoney').set( result );
             });
 
             //Guardar en mis transacciones
@@ -178,13 +171,10 @@
 
     });
 
-
   });
 
 
-
   saveFavorite.addEventListener('click', e => {
-
     if(recipientNumber.value.length != 10){
       alert('Account number must be 10 characters long');
       return;
@@ -192,7 +182,7 @@
 
     //Check if account exists in freq list
     var isInFrequents = false;
-    freqAccounts.once('value', snap => {
+    myFavorites.once('value', snap => {
       snap.forEach(function(subSnap) {
         if(subSnap.child("RecipientNumber").val() == recipientNumber.value){
           isInFrequents = true;
@@ -204,32 +194,25 @@
       return;
     }
 
-
-    //Check if account is not myself
-    var itsMine = false;
-    myAccount.child('AccountNumber').once('value', snap => {
-      if(snap.val() == recipientNumber.value){
-        event.stopImmediatePropagation();
-        itsMine = true;
-        return;
-      }
-    });
-
-    //Check if account exists in db
+    //Check if account exists in db and if it is mine
     var accountInDB = false;
+    var itsMine = false;
     checkDB.once('value', snap => {
       snap.forEach(function(subSnap) {
         if(subSnap.child('AccountNumber').val() == recipientNumber.value){
           accountInDB = true;
+          if(subSnap.key == firebase.auth()["currentUser"]["uid"]){
+            itsMine = true;
+          }
         }
       });
 
       if(accountInDB && itsMine){
-        alert('it is your account!!');
+        alert('It is your account');
       }
       else if(accountInDB){
-        freqAccounts.push({'Name': recipientName.value, 'RecipientNumber': recipientNumber.value});
-        
+        myFavorites.push({'Name': recipientName.value, 'RecipientNumber': recipientNumber.value});
+
         alert('Added to frequents');
       }
       else if(!accountInDB){
@@ -238,18 +221,20 @@
 
     });
 
-
   });
 
+
+  //Add logout event
+  btnLogout.addEventListener('click', e => {
+    firebase.auth().signOut();
+  });
 
 
   //Add a realtime listener
   firebase.auth().onAuthStateChanged(firebaseUser => {
     if(firebaseUser){
-      console.log('user info: '+firebaseUser["uid"]);
-
-      var x = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
-      x.on('value', function(dataSnapshot) {
+      var name = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
+      name.on('value', function(dataSnapshot) {
         username.innerHTML = ' '+dataSnapshot.val();
       });
 
@@ -259,25 +244,19 @@
       });
 
       myAccount = firebase.database().ref().child('Users').child(firebaseUser["uid"]);
-
-
-      myNumber = firebase.database().ref().child('Users').child(firebaseUser["uid"]);
-      myNumber.on('value', function(dataSnapshot) {
+      myAccount.on('value', function(dataSnapshot) {
         user = dataSnapshot.child('Name').val();
       });
-      myNumber.on('value', function(dataSnapshot) {
+      myAccount.on('value', function(dataSnapshot) {
         userNumber = dataSnapshot.child('AccountNumber').val();
       });
 
       myFavorites = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('FrequentAccounts');
-      hisAccount = firebase.database().ref().child('Users');
-      checkDB = firebase.database().ref('Users');
-      freqAccounts = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('FrequentAccounts');
+      checkDB = firebase.database().ref().child('Users');
 
       loadFavorites();
     }
     else{
-      console.log('Not logged in');
       window.location = "login.html";
     }
   });

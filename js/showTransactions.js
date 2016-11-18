@@ -16,8 +16,8 @@
   const username = document.getElementById('username');
 
 
-  function loadData(id){
-    var transactions = firebase.database().ref().child('Users').child(id).child('Transactions');
+  function loadData(){
+    var transactions = firebase.database().ref().child('Users').child(firebase.auth()["currentUser"]["uid"]).child('Transactions');
     //Adds a new transaction
 
     transactions.once('value', snap => {
@@ -41,25 +41,20 @@
 
   //Add logout event
   btnLogout.addEventListener('click', e => {
-    console.log('out!');
     firebase.auth().signOut();
   });
 
   //Add a realtime listener
   firebase.auth().onAuthStateChanged(firebaseUser => {
     if(firebaseUser){
-      console.log('user info: '+firebaseUser["uid"]);
-
-      var x = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
-      x.on('value', function(dataSnapshot) {
+      var name = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
+      name.on('value', function(dataSnapshot) {
         username.innerHTML = ' '+dataSnapshot.val();
       });
 
-
-      loadData(firebaseUser["uid"]);
+      loadData();
     }
     else{
-      console.log('Not logged in');
       window.location = "login.html";
     }
   });

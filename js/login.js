@@ -35,11 +35,9 @@
   //Add a realtime listener
   firebase.auth().onAuthStateChanged(firebaseUser => {
     if(firebaseUser){
-      console.log('user info: '+firebaseUser["uid"]);
+      //console.log('user info: '+firebaseUser["uid"]);
+      //console.log(firebase.auth()["currentUser"]["uid"]);
       window.location = "index.html";
-    }
-    else{
-      console.log('Not logged in');
     }
   });
 

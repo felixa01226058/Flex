@@ -30,14 +30,12 @@
     freqAccounts.on('value', snap => {
       const body = document.getElementsByTagName('tbody').item(0);
       var tr = '';
-      var i = 1;
       snap.forEach(function(subSnap) {
-        tr += '<tr>';
+        tr += "<tr>";
         tr += "<td>"+subSnap.child("RecipientNumber").val()+"</td>";
         tr += "<td>"+subSnap.child("Name").val()+"</td>";
         tr += "<td class=\"delete\"><a><i class=\"fa fa-times-circle\"></i></a></td>";
         tr += "</tr>";
-        i++;
       });
       body.innerHTML = tr;
 
@@ -89,31 +87,24 @@
     }
 
 
-    //Check if account is not myself
-    var itsMine = false;
-    myAccount.once('value', snap => {
-      if(snap.val() == accountNumber){
-        event.stopImmediatePropagation();
-        itsMine = true;
-        return;
-      }
-    });
-
-    //Check if account exists in db
+    //Check if account exists in db and if it is mine
     var accountInDB = false;
+    var itsMine = false;
     checkDB.once('value', snap => {
       snap.forEach(function(subSnap) {
         if(subSnap.child('AccountNumber').val() == accountNumber){
           accountInDB = true;
+          if(subSnap.key == firebase.auth()["currentUser"]["uid"]){
+            itsMine = true;
+          }
         }
       });
 
       if(accountInDB && itsMine){
-        alert('it is your account');
+        alert('It is your account');
       }
       else if(accountInDB){
         freqAccounts.push({'Name': name, 'RecipientNumber': accountNumber});
-        
         alert('Added to frequents');
         window.location = "forms.html";
       }
@@ -123,23 +114,19 @@
 
     });
 
-
   });
 
 
   //Add logout event
   btnLogout.addEventListener('click', e => {
-    console.log('out!');
     firebase.auth().signOut();
   });
 
   //Add a realtime listener
   firebase.auth().onAuthStateChanged(firebaseUser => {
     if(firebaseUser){
-      console.log('freqAccounts info: '+firebaseUser["uid"]);
-
-      var x = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
-      x.on('value', function(dataSnapshot) {
+      var name = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
+      name.on('value', function(dataSnapshot) {
         username.innerHTML = ' '+dataSnapshot.val();
       });
 
@@ -150,7 +137,6 @@
       loadData();
     }
     else{
-      console.log('Not logged in');
       window.location = "login.html";
     }
   });

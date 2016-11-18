@@ -24,12 +24,8 @@
 
   firebase.auth().onAuthStateChanged(firebaseUser => {
     if(firebaseUser){
-      console.log('Main user info: '+firebaseUser["uid"]);
-
-      console.log(firebase.auth()["currentUser"]["uid"]);
-
-      var x = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
-      x.on('value', function(dataSnapshot) {
+      var name = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
+      name.on('value', function(dataSnapshot) {
         username.innerHTML = ' '+dataSnapshot.val();
         welcome.innerHTML = 'Welcome '+dataSnapshot.val().split(" ")[0];
       });
