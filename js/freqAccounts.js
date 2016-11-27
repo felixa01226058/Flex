@@ -25,6 +25,8 @@
   var myAccount;
   var acc;
 
+  var firebaseUserID;
+
 
   function loadData(){
     freqAccounts.on('value', snap => {
@@ -94,7 +96,7 @@
       snap.forEach(function(subSnap) {
         if(subSnap.child('AccountNumber').val() == accountNumber){
           accountInDB = true;
-          if(subSnap.key == firebase.auth()["currentUser"]["uid"]){
+          if(subSnap.key == firebaseUserID){
             itsMine = true;
           }
         }
@@ -125,16 +127,35 @@
   //Add a realtime listener
   firebase.auth().onAuthStateChanged(firebaseUser => {
     if(firebaseUser){
-      var name = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
-      name.on('value', function(dataSnapshot) {
-        username.innerHTML = ' '+dataSnapshot.val();
+
+      var principalRoute = firebase.database().ref().child('Users').child(firebaseUser["uid"]);
+
+
+      principalRoute.child('Enterprise').on('value', function(dataSnapshot) {
+        if(dataSnapshot.val() == null){
+          firebaseUserID = firebaseUser["uid"];
+          principalRoute = firebase.database().ref().child('Users').child(firebaseUser["uid"]);
+        }
+        else {
+          firebaseUserID = dataSnapshot.val();
+          principalRoute = firebase.database().ref().child('Users').child(dataSnapshot.val());
+        }
+
+
+        var name = principalRoute.child('Name');
+        name.on('value', function(dataSnapshot) {
+          username.innerHTML = ' '+dataSnapshot.val();
+        });
+
+        checkDB = firebase.database().ref('Users');
+        myAccount = principalRoute.child('AccountNumber');
+        freqAccounts = principalRoute.child('FrequentAccounts');
+
+        loadData();
+
       });
 
-      checkDB = firebase.database().ref('Users');
-      myAccount = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('AccountNumber');
-      freqAccounts = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('FrequentAccounts');
 
-      loadData();
     }
     else{
       window.location = "login.html";

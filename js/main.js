@@ -24,16 +24,30 @@
 
   firebase.auth().onAuthStateChanged(firebaseUser => {
     if(firebaseUser){
-      var name = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
-      name.on('value', function(dataSnapshot) {
-        username.innerHTML = ' '+dataSnapshot.val();
-        welcome.innerHTML = 'Welcome '+dataSnapshot.val().split(" ")[0];
+
+      var principalRoute = firebase.database().ref().child('Users').child(firebaseUser["uid"]);
+
+      principalRoute.child('Enterprise').on('value', function(dataSnapshot) {
+        if(dataSnapshot.val() == null){
+          principalRoute = firebase.database().ref().child('Users').child(firebaseUser["uid"]);
+        }
+        else {
+          principalRoute = firebase.database().ref().child('Users').child(dataSnapshot.val());
+        }
+
+        var name = principalRoute.child('Name');
+        name.on('value', function(dataSnapshot) {
+          username.innerHTML = ' '+dataSnapshot.val();
+          welcome.innerHTML = 'Welcome '+dataSnapshot.val().split(" ")[0];
+        });
+
+        var money = principalRoute.child('AccountMoney');
+        money.on('value', function(dataSnapshot) {
+          balance.innerHTML = '$'+dataSnapshot.val().toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        });
+
       });
 
-      var money = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('AccountMoney');
-      money.on('value', function(dataSnapshot) {
-        balance.innerHTML = '$'+dataSnapshot.val().toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      });
 
     }
     else{

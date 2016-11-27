@@ -13,8 +13,17 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.orange-indigo.min.css">
     <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 
-    <title>FLEX- Modulo Bancario</title>
+    <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<script type="text/javascript">
+   (function(){
+      emailjs.init("user_DmRpFYDmYqVbxoSCbEbIp");
+   })();
+</script>
+
+
+    <title>FLEX - Modulo Bancario</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.css" rel="stylesheet">
@@ -64,9 +73,8 @@
                                 <h3 class="panel-title"><i class="fa fa-unlock-alt "></i> Sign in</h3>
                             </div>
                             <div class="panel-body">
-                                <form role="form">
 
-
+                                <form role="form" method="post">
                                     <div class="form-group">
                                         <label>Username</label>
                                         <input id="txtEmail" class="form-control"  name = "user" >
@@ -77,15 +85,50 @@
                                         <input id="txtPassword" class="form-control" type="password" name = "password">
                                     </div>
 
-
                                     <div class="text-right">
                                         <!-- <button type="submit" href="index.html" class="btn btn-default">sign in</button> -->
-
                                     </div>
-
                                 </form>
-                                <button id="btnLogin" class="btn">Sign in</button>
+
+                              </div>
+
+                                      <!-- Modal -->
+                                      <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                          <div class="modal-dialog">
+                                              <div class="modal-content">
+                                                  <div class="modal-header">
+                                                      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                      <h4 class="modal-title" id="myModalLabel">Please insert your token number</h4>
+                                                  </div>
+                                                  <div class="modal-body">
+                                                      <form role="form">
+
+                                                          <div class="form-group">
+                                                              <label>Token number</label>
+                                                              <input id="tokenNumber" class="form-control" placeholder="ex. 0000000">
+                                                          </div>
+
+
+                                                  </div>
+                                                  <div class="modal-footer">
+                                                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                      <button id="finalLogin" type="button" class="btn btn-primary">Submit</button>
+                                                  </div>
+                                                  </form>
+                                              </div>
+                                              <!-- /.modal-content -->
+                                          </div>
+                                          <!-- /.modal-dialog -->
+                                      </div>
+                                      <!-- /.modal -->
+
+
+                                <div class="text-center">
+                                <button id="btnLogin" class="btn" >Sign in</button>
+                                </div>
                             </div>
+
+
                         </div>
                     </div>
                 </div>

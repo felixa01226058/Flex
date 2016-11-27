@@ -16,8 +16,9 @@
   const username = document.getElementById('username');
 
 
+  var transactions;
+
   function loadData(){
-    var transactions = firebase.database().ref().child('Users').child(firebase.auth()["currentUser"]["uid"]).child('Transactions');
     //Adds a new transaction
 
     transactions.once('value', snap => {
@@ -47,12 +48,29 @@
   //Add a realtime listener
   firebase.auth().onAuthStateChanged(firebaseUser => {
     if(firebaseUser){
-      var name = firebase.database().ref().child('Users').child(firebaseUser["uid"]).child('Name');
-      name.on('value', function(dataSnapshot) {
-        username.innerHTML = ' '+dataSnapshot.val();
+
+      var principalRoute = firebase.database().ref().child('Users').child(firebaseUser["uid"]);
+
+      principalRoute.child('Enterprise').on('value', function(dataSnapshot) {
+        if(dataSnapshot.val() == null){
+          principalRoute = firebase.database().ref().child('Users').child(firebaseUser["uid"]);
+        }
+        else {
+          principalRoute = firebase.database().ref().child('Users').child(dataSnapshot.val());
+        }
+
+
+        transactions = principalRoute.child('Transactions');
+        var name = principalRoute.child('Name');
+        name.on('value', function(dataSnapshot) {
+          username.innerHTML = ' '+dataSnapshot.val();
+        });
+
+        loadData();
+        
       });
 
-      loadData();
+
     }
     else{
       window.location = "login.html";
