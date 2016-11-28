@@ -53,7 +53,7 @@
       console.log("este es el token "+token);
       console.log('user info: '+firebaseUser["uid"]);
       
-      //window.location = "index.html";
+      window.location = "index.html";
     }
     else{
 
